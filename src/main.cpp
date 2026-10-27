@@ -9,6 +9,8 @@
 
 #include "bn_sprite_items_dot.h"
 #include "bn_sprite_items_orange.h"
+#include "bn_regular_bg_ptr.h"
+#include "bn_regular_bg_items_background.h"
 
 
 // Set max/min x position to be the edges of the display
@@ -99,7 +101,8 @@ bn::fixed average_x(bn::vector<Bouncer, MAX_BOUNCERS>& bouncers) {
     return x_average;
 }
 
-void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS>& bouncers, 
+void add_bouncer(bn::vector<Bouncer, 
+    MAX_BOUNCERS>& bouncers, 
     bn::fixed start_x, 
     bn::fixed start_y,
     bn::random& random){
@@ -111,8 +114,11 @@ void add_bouncer(bn::vector<Bouncer, MAX_BOUNCERS>& bouncers,
 }
 
 int main() {
+    //Create a random speed generator
+    bn::random random;
+    
     bn::core::init();
-
+    bn::regular_bg_ptr bg = bn::regular_bg_items::background.create_bg(0,0);
     // Sprites and x speeds of bouncers
     // Items with the same index correspond to each other
     // bn::vector<bn::sprite_ptr, MAX_BOUNCERS> sprites = {};
@@ -124,20 +130,22 @@ int main() {
     while(true) {
         //if A is pressed add a new bouncer
         if(bn::keypad::a_pressed()) {
-            add_bouncer(bouncers, 0, y_spawn);
+            add_bouncer(bouncers, 0, y_spawn, random);
         }
 
-        // // if B is pressed print the average to the console
-        // if(bn::keypad::b_pressed()) {
-        //     bn::fixed x_average = average_x(sprites);
-        //     BN_LOG("Average x: ", x_average);
-        // }
+        // if B is pressed print the average to the console
+        if(bn::keypad::b_pressed()) {
+            bn::fixed x_average = average_x(bouncers);
+            
+            BN_LOG("Average x: ", x_average);
+        }
 
         for(Bouncer& b : bouncers) {
             b.update();
         }
 
         y_spawn += 1;
+
         if(y_spawn > MAX_Y) {
             y_spawn = MIN_Y;
         }
